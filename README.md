@@ -1,78 +1,73 @@
 # keyman-vancouver
 
-A playground for Keyman Developer application.
+A prototype future Keyman Developer.
 
-## Getting started
+## What's inside?
 
-Please install all necessary [prerequisites](https://github.com/eclipse-theia/theia/blob/master/doc/Developing.md#prerequisites).
+Based on a generated template for [Eclipse Theia](https://theia-ide.org), this application consists of a set of Theia and VSCode plugins.
 
-## Running the browser example
+### Extensions
 
-    yarn build:browser
-    yarn start:browser
+- [`extensions/keyman-kpj`](./extensions/keyman-kpj/) is a VSCode plugin which provides the Keyman Project and Keyman LDML editing capabilities
+- [`keyman-vancouver/`](./extensions/keyman-vancouver/) is a Theia plugin which provides the basic personality
 
-*or:*
+### Scaffolding
 
-    yarn build:browser
-    cd browser-app
-    yarn start
+- `browser-app` and `electron-app` are the web and desktop apps, respectively. The are largely auto generated, but have resources and package.json contents to be kept in sync.
+- `plugins` is a directory of symlinks that is used when the app starts up. In the future we could just use `extensions` directly, but this is reserved in case we choose to use some downloaded plugins that aren't also hosted here.
 
-*or:* launch `Start Browser Backend` configuration from VS code.
+### Misc
+
+- yes, lerna and even yarn are used in some places. A to-do item is to remove them.
+
+## Building and Running
+
+### Prerequisites
+
+- Node 20 (see [.node-version](./.node-version))
+- python and tools for building native modules - see this article on the Theia [prerequisites](https://github.com/eclipse-theia/theia/blob/master/doc/Developing.md#prerequisites).
+
+
+### Running the browser version
+
+    npm i
+    npm run build:browser
+    ( cd extensions/keyman-kpj ; npm i ; npm run build )
+    npm run start:browser
 
 Open http://localhost:3000 in the browser.
 
-## Running the Electron example
+*or:* launch `Start Browser Backend` configuration from VS code.
 
-    yarn build:electron
-    yarn start:electron
+### Running the Electron version
 
-*or:*
-
-    yarn build:electron
-    cd electron-app
-    yarn start
+    npm i
+    npm run build:electron
+    npm run start:electron
 
 *or:* launch `Start Electron Backend` configuration from VS code.
 
+### Packaging Electron
 
-## Packaging Electron
+    npm run package:electron
 
-    yarn package:electron
+## Dev
 
-## Developing with the browser example
+### Developing with the browser
 
-Start watching all packages, including `browser-app`, of your application with
+Start watching (continuous rebuild of) all packages, including `browser-app`, of your application with
 
-    yarn watch:browser
+    npm run watch:browser
 
-*or* watch only specific packages with
+Now run the as described above
 
-    cd keyman-vancouver
-    yarn watch
-
-and the browser example.
-
-    cd browser-app
-    yarn watch
-
-Run the example as [described above](#Running-the-browser-example)
-## Developing with the Electron example
+### Developing with the Electron example
 
 Start watching all packages, including `electron-app`, of your application with
 
-    yarn watch:electron
+    npm run watch:electron
 
-*or* watch only specific packages with
-
-    cd keyman-vancouver
-    yarn watch
-
-and the Electron example.
-
-    cd electron-app
-    yarn watch
-
-Run the example as [described above](#Running-the-Electron-example)
+Now run the as described above
 
 ## License
 

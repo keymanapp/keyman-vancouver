@@ -5,3 +5,7 @@ lib
 *-app/*
 !*-app/package.json
 !*-app/resources
+/plugins
+/plugins/*
+/plugins/keyman-kpj
+
