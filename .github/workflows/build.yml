@@ -29,8 +29,8 @@ jobs:
                     npm-
             - run: |
                 npm ci
-                npm build:browser
-                #npm build:electron
+                npm run build:browser
+                #npm run build:electron
               env:
                 GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
             # lint
