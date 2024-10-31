@@ -1,0 +1,14 @@
+/*
+ * Keyman is copyright (C) SIL Global. MIT License.
+ */
+
+/* imported by ../keyman-vancouver-frontend-module.ts */
+
+.vancouver-splash {
+    background-image: url('../media/KeymanVancouverSplash.svg');
+    background-position: center;
+    background-repeat: no-repeat;
+    background-size: contain;
+    width: 752px;
+    height: 533px;
+}

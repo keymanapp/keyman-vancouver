@@ -1,0 +1,54 @@
+{
+  "private": true,
+  "name": "keyman-vancouver-app",
+  "description": "Next Generation Keyman Developer App",
+  "author": "Steven R. Loomis <srl295@codehivetx.us>",
+  "license": "MIT",
+  "version": "0.0.0",
+  "main": "lib/backend/electron-main.js",
+  "dependencies": {
+    "@keymanapp/vancouver-kpj-builder": "^0.0.1",
+    "@theia/core": "latest",
+    "@theia/editor": "latest",
+    "@theia/electron": "latest",
+    "@theia/filesystem": "latest",
+    "@theia/getting-started": "latest",
+    "@theia/markers": "latest",
+    "@theia/messages": "latest",
+    "@theia/monaco": "latest",
+    "@theia/navigator": "latest",
+    "@theia/plugin-ext-vscode": "^1.54.0",
+    "@theia/preferences": "latest",
+    "@theia/process": "latest",
+    "@theia/task": "^1.54.0",
+    "@theia/terminal": "latest",
+    "@theia/workspace": "latest",
+    "keyman-vancouver": "0.0.0"
+  },
+  "devDependencies": {
+    "@theia/cli": "latest",
+    "electron": "30.1.2"
+  },
+  "scripts": {
+    "bundle": "npm run rebuild && theia build --mode development --plugins=local-dir:../plugins",
+    "rebuild": "theia rebuild:electron --cacheRoot .. --plugins=local-dir:../plugins",
+    "start": "theia start --plugins=local-dir:../plugins",
+    "watch": "npm run rebuild && theia build --watch --mode development",
+    "package": "npx electron-builder -c.mac.identity=null --publish never"
+  },
+  "theia": {
+    "target": "electron",
+    "frontend": {
+      "config": {
+        "applicationName": "Keyman Developer Vancouver",
+        "electron": {
+          "splashScreenOptions": {
+            "content": "resources/KeymanVancouverSplash.svg",
+            "height": 533,
+            "width": 752
+          }
+        }
+      }
+    }
+  }
+}

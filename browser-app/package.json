@@ -1,0 +1,36 @@
+{
+  "private": true,
+  "name": "browser-app",
+  "version": "0.0.0",
+  "dependencies": {
+    "@keymanapp/vancouver-kpj-builder": "^0.0.1",
+    "@theia/core": "latest",
+    "@theia/editor": "latest",
+    "@theia/filesystem": "latest",
+    "@theia/getting-started": "latest",
+    "@theia/markers": "latest",
+    "@theia/messages": "latest",
+    "@theia/monaco": "latest",
+    "@theia/navigator": "latest",
+    "@theia/plugin-ext-vscode": "^1.54.0",
+    "@theia/preferences": "latest",
+    "@theia/process": "latest",
+    "@theia/task": "^1.54.0",
+    "@theia/terminal": "latest",
+    "@theia/workspace": "latest",
+    "keyman-vancouver": "0.0.0"
+  },
+  "devDependencies": {
+    "@theia/cli": "latest"
+  },
+  "scripts": {
+    "bundle": "npm run rebuild && theia build --mode development",
+    "rebuild": "theia rebuild:browser --cacheRoot ..",
+    "start": "theia start --plugins=local-dir:../plugins --hostname=0.0.0.0 --ignore-certificate-errors",
+    "watch": "npm run rebuild && theia build --watch --mode development"
+  },
+  "theia": {
+    "target": "browser"
+  },
+  "license": "MIT"
+}
