@@ -8,7 +8,7 @@
   "scripts": {
     "build:browser": "cd browser-app ; npm run bundle",
     "build:electron": "cd electron-app ; npm run bundle",
-    "prepare": "lerna run prepare",
+    "prepare": "npm run --if-present --ws prepare",
     "postinstall": "theia check:theia-version",
     "start:browser": "cd browser-app ; npm run start",
     "start:electron": "cd electron-app ; npm run start",

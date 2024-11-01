@@ -25,7 +25,7 @@ Based on a generated template for [Eclipse Theia](https://theia-ide.org), this a
 ### Prerequisites
 
 - Node 20 (see [.node-version](./.node-version))
-- python and tools for building native modules - see this article on the Theia [prerequisites](https://github.com/eclipse-theia/theia/blob/master/doc/Developing.md#prerequisites).
+- python and tools for building native modules - see this article on the Theia [prerequisites](https://github.com/eclipse-theia/theia/blob/master/doc/Developing.md#prerequisites). (Note, you don't need to install yarn directly for keyman-vancouver)
 
 
 ### Running the browser version
