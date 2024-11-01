@@ -6,6 +6,7 @@ on:
     push:
         paths:
             - 'electron-app/**'
+            - '.github/workflows/electron.yml'
 
 jobs:
     build:
@@ -23,6 +24,9 @@ jobs:
             - uses: actions/setup-node@v4
               with:
                 node-version: ${{ matrix.node }}
+            - name: 'mac: fixup python'
+              if: runner.os == 'macOS'
+              run: brew install python-setuptools
             - name: Cache npm repository
               uses: actions/cache@v4
               with:

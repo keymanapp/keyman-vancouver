@@ -17,6 +17,9 @@ jobs:
         runs-on: ${{ matrix.os }}
         steps:
             - uses: actions/checkout@v4
+            - name: 'mac: fixup python'
+              if: runner.os == 'macOS'
+              run: brew install python-setuptools
             - uses: actions/setup-node@v4
               with:
                 node-version: ${{ matrix.node }}
