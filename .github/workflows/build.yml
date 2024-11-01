@@ -29,6 +29,8 @@ jobs:
                     npm-
             - run: |
                 npm ci
+                # workaround for strange build issue #2
+                ( mkdir -pv keyman-vancouver/node_modules/@theia/application-manager/node_modules/.bin/ && ln -sv ../../../../webpack keyman-vancouver/node_modules/@theia/application-manager/node_modules/.bin/webpack)
                 npm run build:browser
                 #npm run build:electron
               env:
