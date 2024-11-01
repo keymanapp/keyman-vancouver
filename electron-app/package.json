@@ -23,7 +23,15 @@
     "@theia/task": "^1.54.0",
     "@theia/terminal": "latest",
     "@theia/workspace": "latest",
-    "keyman-vancouver": "0.0.0"
+    "keyman-vancouver": "0.0.0",
+    "node-pty": "*",
+    "nsfw": "*",
+    "native-keymap": "*",
+    "find-git-repositories": "*",
+    "drivelist": "*",
+    "keytar": "*",
+    "ssh2": "*",
+    "cpu-features": "*"
   },
   "devDependencies": {
     "@theia/cli": "latest",
@@ -31,7 +39,7 @@
   },
   "scripts": {
     "bundle": "npm run rebuild && theia build --mode development --plugins=local-dir:../plugins",
-    "rebuild": "theia rebuild:electron --cacheRoot .. --plugins=local-dir:../plugins",
+    "rebuild": "theia rebuild:electron --cacheRoot ..",
     "start": "theia start --plugins=local-dir:../plugins",
     "watch": "npm run rebuild && theia build --watch --mode development",
     "package": "npx electron-builder -c.mac.identity=null --publish never"
