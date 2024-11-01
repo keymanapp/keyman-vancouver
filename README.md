@@ -25,12 +25,18 @@ Based on a generated template for [Eclipse Theia](https://theia-ide.org), this a
 ### Prerequisites
 
 - Node 20 (see [.node-version](./.node-version))
-- python and tools for building native modules - see this article on the Theia [prerequisites](https://github.com/eclipse-theia/theia/blob/master/doc/Developing.md#prerequisites). (Note, you don't need to install yarn directly for keyman-vancouver)
+- python and tools for building native modules
+  - see this article on the Theia [prerequisites](https://github.com/eclipse-theia/theia/blob/master/doc/Developing.md#prerequisites)
+  - (Note, you don't need to install yarn directly for keyman-vancouver)
+  - Mac tip: `brew install python-setuptools`
 
 
 ### Running the browser version
 
     npm i
+    # workaround for an odd issue, see #2
+    ( mkdir -pv node_modules/@theia/application-manager/node_modules/.bin/ && ln -sfv ../../../../.bin/webpack ./node_modules/@theia/application-manager/node_modules/.bin/webpack)
+    npm run prepare
     npm run build:browser
     ( cd extensions/keyman-kpj ; npm i ; npm run build )
     npm run start:browser

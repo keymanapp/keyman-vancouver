@@ -30,10 +30,7 @@ jobs:
             - run: |
                 npm ci
                 # workaround for strange build issue #2
-                ( mkdir -pv keyman-vancouver/node_modules/@theia/application-manager/node_modules/.bin/ && ln -sfv ../../../../../../node_modules/.bin/webpack keyman-vancouver/node_modules/@theia/application-manager/node_modules/.bin/webpack)
-                ls -ld keyman-vancouver/node_modules/@theia/application-manager/node_modules/.bin/webpack
-                wc -c keyman-vancouver/node_modules/@theia/application-manager/node_modules/.bin/webpack
-                find . -type f -name webpack -ls
+                ( mkdir -pv node_modules/@theia/application-manager/node_modules/.bin/ && ln -sfv ../../../../.bin/webpack ./node_modules/@theia/application-manager/node_modules/.bin/webpack)
                 npm ls -a
                 npm run build:browser
                 #npm run build:electron
