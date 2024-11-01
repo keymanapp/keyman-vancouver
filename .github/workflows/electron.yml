@@ -1,7 +1,11 @@
-name: Build
+name: Build Electron
 
 on:
+    workflow_dispatch:
+    release:
     push:
+        paths:
+            - 'electron-app/**'
 
 jobs:
     build:
@@ -9,11 +13,10 @@ jobs:
             matrix:
                 node: [ 20 ]
                 os:
-                    # we just build web typically
                     - ubuntu-latest
-                    # - windows-latest
-                    # - macos-latest
-        name: ${{ matrix.os }} Node ${{ matrix.node}}
+                    - windows-latest
+                    - macos-latest
+        name: Electron ${{ matrix.os }} Node ${{ matrix.node}}
         runs-on: ${{ matrix.os }}
         steps:
             - uses: actions/checkout@v4
@@ -24,17 +27,18 @@ jobs:
               uses: actions/cache@v4
               with:
                 path: ~/.npm
-                key: npm-${{ runner.os }}-build-${{ hashFiles('**/package.json') }}
+                key: npm-${{ runner.os }}-electron-${{ hashFiles('**/package.json') }}
                 restore-keys: |
-                    npm-${{ runner.os }}-build-
+                    npm-${{ runner.os }}-electron-
                     npm-
             - run: |
                 npm ci
                 # workaround for strange build issue #2
                 ( mkdir -pv node_modules/@theia/application-manager/node_modules/.bin/ && ln -sfv ../../../../.bin/webpack ./node_modules/@theia/application-manager/node_modules/.bin/webpack)
-                npm run build:browser
-                #npm run build:electron
+                # npm run build:browser
+                npm run build:electron
               env:
                 GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
             # lint
             # test
+            # TODO: package result!
