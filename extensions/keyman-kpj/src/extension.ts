@@ -2,7 +2,8 @@
  * Keyman is copyright (C) SIL Global. MIT License.
  */
 
-const {path} = require('node:path');
+
+const path = require('node:path'); // node:path
 const { existsSync } = require('node:fs');
 import * as vscode from 'vscode';
 import { LdmlEditorProvider } from './ldmleditor';
@@ -10,7 +11,7 @@ import { LdmlEditorProvider } from './ldmleditor';
 // import { CompilerOptions, CompilerCallbackOptions } from '@keymanapp/developer-utils';
 // import { NodeCompilerCallbacks } from '@keymanapp/kmc/build/src/util/NodeCompilerCallbacks';
 
-let kpjPromise: Thenable<vscode.Task[]> | undefined = undefined;
+let kpjPromise: Promise<vscode.Task[]> | undefined = undefined;
 
 async function buildProject(infile: string) : Promise<boolean> {
 	// const outfile = '';
@@ -167,10 +168,16 @@ export function activate(context: vscode.ExtensionContext) {
 		// TODO should be TaskProvider subclass
 
 		provideTasks() {
-			vscode.window.showInformationMessage('GettinTasks!');
+			// vscode.window.showInformationMessage('GettinTasks!');
 
-			console.log("Gettin' tasks");
-			return (kpjPromise = kpjPromise ?? getKpjTasks());
+			// console.log("Gettin' tasks");
+			kpjPromise = kpjPromise ?? getKpjTasks();
+			kpjPromise.catch(e => {
+				console.error(e);
+				// print something
+				vscode.window.showErrorMessage(`Keyman: Error getting tasks: ${e}`);
+			});
+			return kpjPromise;
 		},
 		resolveTask(_task: vscode.Task) : vscode.Task | undefined {
 			const task = _task.definition.task;
