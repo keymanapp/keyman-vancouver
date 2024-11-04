@@ -65,8 +65,11 @@
     "eslint": "^9.11.1",
     "typescript": "^5.6.2"
   },
+  "license": "MIT",
   "dependencies": {
-    "@keymanapp/kmc": "^18.0.129-alpha"
-  },
-  "license": "MIT"
+    "@keymanapp/common-types": "^17.0.331",
+    "@keymanapp/developer-utils": "^17.0.331",
+    "@keymanapp/kmc-ldml": "^17.0.331",
+    "@keymanapp/kmc-package": "^17.0.331"
+  }
 }

@@ -28,7 +28,7 @@ class KpjBuildTerminal implements vscode.Pseudoterminal {
 
     private fileWatcher: vscode.FileSystemWatcher | undefined;
 
-    constructor(private workspaceRoot: string, private flavor: string, private flags: string[], private getSharedState: () => string | undefined, private setSharedState: (state: string) => void) {
+    constructor(private workspaceRoot: string, private kpjPath: string, private flavor: string, private flags: string[], private getSharedState: () => string | undefined, private setSharedState: (state: string) => void) {
     }
 
     open(initialDimensions: vscode.TerminalDimensions | undefined): void {
@@ -52,29 +52,12 @@ class KpjBuildTerminal implements vscode.Pseudoterminal {
     }
 
     private async doBuild(): Promise<void> {
-        return new Promise<void>((resolve) => {
-            this.writeEmitter.fire('Starting build...\r\n');
-            let isIncremental = this.flags.indexOf('incremental') > -1;
-            if (isIncremental) {
-                if (this.getSharedState()) {
-                    this.writeEmitter.fire('Using last build results: ' + this.getSharedState() + '\r\n');
-                } else {
-                    isIncremental = false;
-                    this.writeEmitter.fire('No result from last build. Doing full build.\r\n');
-                }
-            }
-
-            // Since we don't actually build anything in this example set a timeout instead.
-            setTimeout(() => {
-                const date = new Date();
-                this.setSharedState(date.toTimeString() + ' ' + date.toDateString());
-                this.writeEmitter.fire('Build complete.\r\n\r\n');
-                if (this.flags.indexOf('watch') === -1) {
-                    this.closeEmitter.fire(0);
-                    resolve();
-                }
-            }, isIncremental ? 1000 : 4000);
-        });
+        this.writeEmitter.fire(`Starting build of ${this.kpjPath}...\r\n`);
+        // esm so we can access keyman
+        const { buildProject } = await import('./kpjBuild.mjs');
+        await buildProject(this.workspaceRoot, this.kpjPath, this.writeEmitter.fire.bind(this.writeEmitter));
+        this.closeEmitter.fire(0);
+        // TODO: get/set sharedState
     }
 }
 
@@ -101,7 +84,7 @@ async function getKpjTasks(): Promise<vscode.Task[]> {
             console.log(`Keyman: Found kpj => ${kpjFile}`);
         }
         const task = new vscode.Task({ type: 'kpj' }, workspaceFolder, dir, 'kpj',
-            new vscode.CustomExecution(async (definition) => new KpjBuildTerminal('hallo', '', [], () => undefined, (state) => undefined))
+            new vscode.CustomExecution(async (definition) => new KpjBuildTerminal(folderString, kpjFile, '', [], () => undefined, (state) => undefined))
             // new vscode.ShellExecution(`npx -y @keymanapp/kmc build file ${kpjFile}`)
         );
         task.group = vscode.TaskGroup.Build;
@@ -151,11 +134,11 @@ export const KpjTaskProvider = {
             return new vscode.Task(
                 definition,
                 _task.scope ?? vscode.TaskScope.Workspace,
-                definition.type, // for now, se don't have another name to use
+                definition.type, // for now, we don't have another name to use
                 'kpj',
                 new vscode.CustomExecution(
                     async (): Promise<vscode.Pseudoterminal> => {
-                        return new KpjBuildTerminal("something", "something", ["something"], () => sharedState, (state: string) => sharedState = state);
+                        return new KpjBuildTerminal("something", "something/something.kpj", "something", ["something"], () => sharedState, (state: string) => sharedState = state);
                     }
                 )
                 // OLD: shell
