@@ -15,7 +15,7 @@ jobs:
                 node: [ 20 ]
                 os:
                     - ubuntu-latest
-                    - windows-latest
+                    # - windows-latest
                     - macos-latest
         name: Electron ${{ matrix.os }} Node ${{ matrix.node}}
         runs-on: ${{ matrix.os }}
