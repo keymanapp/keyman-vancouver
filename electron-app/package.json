@@ -34,7 +34,7 @@
     "rebuild": "theia rebuild:electron --cacheRoot ..",
     "start": "theia start --plugins=local-dir:../plugins",
     "watch": "npm run rebuild && theia build --watch --mode development",
-    "package": "npx electron-builder -c.mac.identity=null --publish never"
+    "package": "npx -y electron-builder -c.mac.identity=null --publish never"
   },
   "theia": {
     "target": "electron",
