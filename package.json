@@ -5,6 +5,10 @@
   "engines": {
     "node": ">=16"
   },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/keymanapp/keyman-vancouver.git"
+  },
   "scripts": {
     "build:browser": "cd browser-app ; npm run bundle",
     "build:electron": "cd electron-app ; npm run bundle",
@@ -12,12 +16,9 @@
     "postinstall": "theia check:theia-version",
     "start:browser": "cd browser-app ; npm run start",
     "start:electron": "cd electron-app ; npm run start",
-    "watch:browser": "lerna run --parallel watch --ignore electron-app",
-    "watch:electron": "lerna run --parallel watch --ignore browser-app",
+    "watch:browser": "npx -y lerna run --parallel watch --ignore electron-app",
+    "watch:electron": "npx -y lerna run --parallel watch --ignore browser-app",
     "package:electron": "cd electron-app ; npm run package"
-  },
-  "devDependencies": {
-    "lerna": "2.4.0"
   },
   "workspaces": [
     "keyman-vancouver",

@@ -2,6 +2,10 @@
   "private": true,
   "name": "keyman-vancouver-app",
   "description": "Next Generation Keyman Developer App",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/keymanapp/keyman-vancouver.git"
+  },
   "author": "Steven R. Loomis <srl295@codehivetx.us>",
   "license": "MIT",
   "version": "0.0.0",
