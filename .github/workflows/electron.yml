@@ -41,13 +41,15 @@ jobs:
                 GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
             - name: build electron
               run: |
-                npm run build:electron
+                cd electron-app
+                npm run bundle
               env:
                 GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
             - name: package electron
               if: github.event_name == 'release' || github.event_name == 'workflow_dispatch'
               run: |
-                npm run package:electron
+                cd electron-app
+                npm run package
               env:
                 GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
             # - TODO: lint

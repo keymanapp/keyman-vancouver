@@ -33,7 +33,8 @@ jobs:
                     npm-
             - run: |
                 npm ci
-                npm run build:browser
+                cd browser-app
+                npm run bundle
               env:
                 GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
             # lint
