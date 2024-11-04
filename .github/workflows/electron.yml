@@ -15,7 +15,7 @@ jobs:
                 node: [ 20 ]
                 os:
                     - ubuntu-latest
-                    # - windows-latest
+                    - windows-latest
                     - macos-latest
         name: Electron ${{ matrix.os }} Node ${{ matrix.node}}
         runs-on: ${{ matrix.os }}
@@ -37,9 +37,6 @@ jobs:
                     npm-
             - run: |
                 npm ci
-                # workaround for strange build issue #2
-                ( mkdir -pv node_modules/@theia/application-manager/node_modules/.bin/ && ln -sfv ../../../../.bin/webpack ./node_modules/@theia/application-manager/node_modules/.bin/webpack)
-                # npm run build:browser
               env:
                 GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
             - name: build electron
