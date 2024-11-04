@@ -18,7 +18,8 @@
     "start:electron": "cd electron-app ; npm run start",
     "watch:browser": "npx -y lerna run --parallel watch --ignore electron-app",
     "watch:electron": "npx -y lerna run --parallel watch --ignore browser-app",
-    "package:electron": "cd electron-app ; npm run package"
+    "package:electron": "cd electron-app ; npm run package",
+    "update-theia": "npm update --include=dev @theia/cli @theia/core @theia/editor @theia/filesystem @theia/getting-started @theia/markers @theia/messages @theia/monaco @theia/navigator @theia/plugin-ext-vscode @theia/preferences @theia/process @theia/task @theia/terminal @theia/workspace @theia/electron   --ws --include-workspace-root"
   },
   "workspaces": [
     "keyman-vancouver",
