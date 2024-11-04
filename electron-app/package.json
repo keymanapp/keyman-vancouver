@@ -36,6 +36,9 @@
     "watch": "npm run rebuild && theia build --watch --mode development",
     "package": "npx -y electron-builder -c.mac.identity=null --publish never"
   },
+  "build": {
+    "npmRebuild": false
+  },
   "theia": {
     "target": "electron",
     "frontend": {
