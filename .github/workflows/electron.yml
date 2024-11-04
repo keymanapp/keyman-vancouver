@@ -40,9 +40,24 @@ jobs:
                 # workaround for strange build issue #2
                 ( mkdir -pv node_modules/@theia/application-manager/node_modules/.bin/ && ln -sfv ../../../../.bin/webpack ./node_modules/@theia/application-manager/node_modules/.bin/webpack)
                 # npm run build:browser
+              env:
+                GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+            - name: build electron
+              run: |
                 npm run build:electron
               env:
                 GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-            # lint
-            # test
-            # TODO: package result!
+            - name: package electron
+              if: github.event_name == 'release' || github.event_name == 'workflow_dispatch'
+              run: |
+                npm run package:electron
+              env:
+                GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+            # - TODO: lint
+            # - TODO: test
+            - name: Upload electron artifact
+              if: github.event_name == 'release' || github.event_name == 'workflow_dispatch'
+              uses: actions/upload-artifact@v4
+              with:
+                name: electron-app
+                path: electron-app/dist/keyman*
