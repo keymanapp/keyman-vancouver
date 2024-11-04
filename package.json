@@ -13,7 +13,7 @@
     "build:browser": "cd browser-app ; npm run bundle",
     "build:electron": "cd electron-app ; npm run bundle",
     "prepare": "npm run --if-present --ws prepare",
-    "postinstall": "theia check:theia-version ; npx -y symlink-dir node_modules/.bin ./node_modules/@theia/application-manager/node_modules/.bin",
+    "postinstall": "theia check:theia-version",
     "start:browser": "cd browser-app ; npm run start",
     "start:electron": "cd electron-app ; npm run start",
     "watch:browser": "npx -y lerna run --parallel watch --ignore electron-app",

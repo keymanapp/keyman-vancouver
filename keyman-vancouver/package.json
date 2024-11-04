@@ -20,7 +20,8 @@
     "prepare": "npm run clean && npm run build",
     "clean": "rimraf lib",
     "build": "tsc",
-    "watch": "tsc -w"
+    "watch": "tsc -w",
+    "postinstall": "npx -y symlink-dir ../node_modules/.bin ../node_modules/@theia/application-manager/node_modules/.bin"
   },
   "theiaExtensions": [
     {
