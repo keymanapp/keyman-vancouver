@@ -11,21 +11,54 @@
  * TODO Some of this code may  look very familiar and should be refactored from kmc !
  */
 
-import { extname, dirname } from "node:path";
+import { platform } from "node:os";
+import { extname, dirname, resolve } from "node:path";
 import { mkdir } from "node:fs/promises";
 import { KPJFileReader, CompilerCallbacks, CompilerEvent, KeymanFileTypes, CompilerCallbackOptions, CompilerOptions, LDMLKeyboardXMLSourceFileReader } from "@keymanapp/common-types";
 import { ExtensionCallbacks } from "./extensionCallbacks.mjs";
 import * as kmcLdml from '@keymanapp/kmc-ldml';
+import * as kmcKmn from '@keymanapp/kmc-kmn';
 import { fileURLToPath } from 'url';
 import { KmpCompiler, KmpCompilerOptions } from "@keymanapp/kmc-package";
 
+
+/**
+ * Ensure that the parent dirs of filePath exist
+ * @param filePath path to some file
+ */
 async function mkParentDirs(filePath: string) {
     const dir = dirname(filePath);
     await mkdir(dir, { recursive: true });
 }
 
+/**
+ * Build a whole .kpj
+ * @param workspaceRoot root dir for work 
+ * @param kpjPath  path to the .kpj
+ * @param msg callback for writing messages
+ * @returns accept on OK, otherwise throws
+ */
 export async function buildProject(workspaceRoot: string,
     kpjPath: string, msg: (m: string)=>void): Promise<void> {
+
+
+    function getPosixAbsolutePath(filename: string): string {
+        if (platform() == 'win32') {
+            // On Win32, we need to use backslashes for path.resolve to work
+            filename = filename.replace(/\//g, '\\');
+        }
+        const path = { resolve };
+        // Resolve to a fully qualified absolute path relative to workspaceRoot
+        filename = path.resolve(workspaceRoot, filename);
+
+        if (platform() == 'win32') {
+            // Ensure that we convert the result back to posix-style paths which is what
+            // kmc-kmn expects. On posix platforms, we assume paths have forward slashes
+            // already
+            filename = filename.replace(/\\/g, '/');
+        }
+        return filename;
+    }
 
     const callbacks = new ExtensionCallbacks({}, msg);
 
@@ -118,7 +151,40 @@ export async function buildProject(workspaceRoot: string,
 
     // now, compile any .kmn
     for (const path of project.files.filter(({ filePath }) => extname(filePath) === KeymanFileTypes.Source.KeymanKeyboard)) {
-        msg(`TODO: Sorry, don't yet compile .kmn such as ${path.filePath} ..`);
+        const { filePath } = path;
+        msg(`Compiling KMN: ${filePath}\r\n`);
+
+        const compiler = new kmcKmn.KmnCompiler();
+        if (!await compiler.init(callbacks, coptions)) {
+            msg(`Compiler failed init\r\n`);
+            continue;
+        }
+
+        const outfile = project.resolveOutputFilePath(path, KeymanFileTypes.Source.KeymanKeyboard, KeymanFileTypes.Binary.Keyboard);
+        msg(`.. outfile is ${outfile}\r\n`);
+        const infilePosix = getPosixAbsolutePath(filePath);
+        const outfilePosix = getPosixAbsolutePath(outfile);
+        await mkParentDirs(outfilePosix);
+        msg(`${infilePosix} => ${outfilePosix}\r\n`);
+        const result = await compiler.run(infilePosix, outfilePosix);
+        if (!result) {
+            msg(`Compiler failed to run\r\n`);
+            continue;
+        }
+        msg(`.. compiled\r\n`);
+        // if(!this.createOutputFolder(outfile ?? infile, callbacks)) {
+        //             return false;
+        // }
+
+        if (!await compiler.write(result.artifacts)) {
+            msg(`Error writing ${outfile}\r\n`);
+            throw Error(`Error writing ${outfile}`);
+        }
+
+        msg(`.. wrote\r\n`);
+    
+        msg(`\r\n\r\n`);
+        didCompileSrc = true; // we allow more than one xmk in each package
     }
 
     // check errs and get out
@@ -139,7 +205,9 @@ export async function buildProject(workspaceRoot: string,
             ...options
         };
         const outfile = project.resolveOutputFilePath(path, KeymanFileTypes.Source.Package, KeymanFileTypes.Binary.Package);
-        await mkParentDirs(outfile);
+        const infilePosix = getPosixAbsolutePath(filePath);
+        const outfilePosix = getPosixAbsolutePath(outfile);
+        await mkParentDirs(outfilePosix);
         msg(`Packaging: ${filePath} into ${outfile}\r\n`);
 
         const compiler = new KmpCompiler();
@@ -148,7 +216,7 @@ export async function buildProject(workspaceRoot: string,
             continue;
         }
 
-        const result = await compiler.run(filePath, outfile);
+        const result = await compiler.run(infilePosix, outfilePosix);
         if (!result) {
             msg(`Compiler failed to run\r\n`);
             continue;
