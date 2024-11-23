@@ -66,6 +66,9 @@ export async function buildProject(workspaceRoot: string,
     const project = await reader.transform(kpjPath, prj);
     // msg(`project loaded: ${JSON.stringify(project, null, ' ')}\r\n`);
 
+    let didCompileSrc = false;
+    let didCompilePkg = false;
+
     for (const path of project.files.filter(({ filePath }) => extname(filePath) === KeymanFileTypes.Source.LdmlKeyboard)) {
         const { filePath } = path;
         msg(`Compiling LDML: ${filePath}\r\n`);
@@ -101,6 +104,7 @@ export async function buildProject(workspaceRoot: string,
         msg(`.. wrote\r\n`);
     
         msg(`\r\n\r\n`);
+        didCompileSrc = true;
     }
     // paths.filter(path => extname(path) === KeymanFileTypes.Source.KeymanKeyboard)
     //     .forEach(path => {
@@ -114,6 +118,10 @@ export async function buildProject(workspaceRoot: string,
 
     if(callbacks.hasFailureMessage(false)) {
         throw Error(`Error building ${kpjPath}`);
+    }
+
+    if (!didCompileSrc) {
+        throw Error(`Error: no source files were compiled.`);
     }
     msg(`All done.\r\n`);
     return;
