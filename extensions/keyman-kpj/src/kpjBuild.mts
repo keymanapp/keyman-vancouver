@@ -7,18 +7,20 @@
  * Code related to building KPJ projects
  */
 
-import { KPJFileReader, CompilerCallbacks, CompilerEvent } from "@keymanapp/common-types";
+import { extname } from "node:path";
+import { KPJFileReader, CompilerCallbacks, CompilerEvent, KeymanFileTypes, CompilerCallbackOptions, CompilerOptions, LDMLKeyboardXMLSourceFileReader } from "@keymanapp/common-types";
 import { ExtensionCallbacks } from "./extensionCallbacks.mjs";
-
+import * as kmcLdml from '@keymanapp/kmc-ldml';
+import { fileURLToPath } from 'url';
 export async function buildProject(workspaceRoot: string,
     kpjPath: string, msg: (m: string)=>void): Promise<void> {
 
     const callbacks = new ExtensionCallbacks({}, msg);
     // const outfile = '';
-    // const coptions : CompilerCallbackOptions = {
-    // };
-    // const options : CompilerOptions = {
-    // };
+    const coptions : CompilerCallbackOptions = {
+    };
+    const options : CompilerOptions = {
+    };
     // const callbacks = new NodeCompilerCallbacks(coptions);
 
     // const resp = await (new BuildProject().build(
@@ -41,12 +43,65 @@ export async function buildProject(workspaceRoot: string,
     const prj = reader.read(callbacks.fs.readFileSync(kpjPath));
 
     if (!prj) {
-        msg(`Could not load ${kpjPath}`);
+        msg(`Could not load ${kpjPath}\r\n`);
         return;
     }
+    try {
+        reader.validate(prj);
+    } catch(e) {
+        console.error(e);
+        msg(`Error validating ${kpjPath}\r\n`);
+    }
 
-    msg(`PRJ loaded: ${JSON.stringify(prj, null, ' ')}\r\n`);
+    // we don't need to see it.
+    // msg(`PRJ loaded: ${JSON.stringify(prj, null, ' ')}\r\n`);
 
+    // this next line is important - we need the full (?) project
+    // otherwise we get an empty shell
+    const project = await reader.transform(kpjPath, prj);
+    // msg(`project loaded: ${JSON.stringify(project, null, ' ')}\r\n`);
+
+    for (const path of project.files.filter(({ filePath }) => extname(filePath) === KeymanFileTypes.Source.LdmlKeyboard)) {
+        const { filePath } = path;
+        msg(`Compiling LDML: ${filePath}\r\n`);
+
+        const ldmlCompilerOptions: kmcLdml.LdmlCompilerOptions = {
+            ...options, readerOptions: {
+                importsPath: fileURLToPath(new URL(...LDMLKeyboardXMLSourceFileReader.defaultImportsURL))
+            }
+        };
+        const compiler = new kmcLdml.LdmlKeyboardCompiler();
+        if (!await compiler.init(callbacks, ldmlCompilerOptions)) {
+            continue;
+        }
+
+        const outfile = project.resolveOutputFilePath(path, KeymanFileTypes.Source.LdmlKeyboard, KeymanFileTypes.Binary.Keyboard);
+        msg(`.. outfile is ${outfile}\r\n`);
+        const result = await compiler.run(filePath, outfile);
+        if (!result) {
+            continue;
+        }
+        msg(`.. compiled\r\n`);
+        // if(!this.createOutputFolder(outfile ?? infile, callbacks)) {
+        //             return false;
+        // }
+
+        await compiler.write(result.artifacts);
+
+        msg(`.. wrote\r\n`);
+
+
+        msg(`\r\n\r\n`);
+    }
+    // paths.filter(path => extname(path) === KeymanFileTypes.Source.KeymanKeyboard)
+    //     .forEach(path => {
+    //         msg(`TODO: compile kmn: ${path}\r\n`);
+    //     });
+    // paths.filter(path => extname(path) === KeymanFileTypes.Source.Package)
+    //     .forEach(path => {
+    //         msg(`TODO: build package: ${path}\r\n`);
+    //     });
+    // // project.files.forEach(({filePath}) => msg(`File: ${filePath}\r\n`));
 
     msg(`All done.\r\n`);
     return;
