@@ -55,8 +55,13 @@ class KpjBuildTerminal implements vscode.Pseudoterminal {
         this.writeEmitter.fire(`Starting build of ${this.kpjPath}...\r\n`);
         // esm so we can access keyman
         const { buildProject } = await import('./kpjBuild.mjs');
-        await buildProject(this.workspaceRoot, this.kpjPath, this.writeEmitter.fire.bind(this.writeEmitter));
-        this.closeEmitter.fire(0);
+        try {
+            await buildProject(this.workspaceRoot, this.kpjPath, this.writeEmitter.fire.bind(this.writeEmitter));
+            this.closeEmitter.fire(0);
+        } catch (e) {
+            this.writeEmitter.fire(`Failure: ${e}\r\n\r\n`);
+            this.closeEmitter.fire(1);
+        }
         // TODO: get/set sharedState
     }
 }
