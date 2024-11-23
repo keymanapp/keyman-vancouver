@@ -11,11 +11,19 @@
  * TODO Some of this code may  look very familiar and should be refactored from kmc !
  */
 
-import { extname } from "node:path";
+import { extname, dirname } from "node:path";
+import { mkdir } from "node:fs/promises";
 import { KPJFileReader, CompilerCallbacks, CompilerEvent, KeymanFileTypes, CompilerCallbackOptions, CompilerOptions, LDMLKeyboardXMLSourceFileReader } from "@keymanapp/common-types";
 import { ExtensionCallbacks } from "./extensionCallbacks.mjs";
 import * as kmcLdml from '@keymanapp/kmc-ldml';
 import { fileURLToPath } from 'url';
+import { KmpCompiler, KmpCompilerOptions } from "@keymanapp/kmc-package";
+
+async function mkParentDirs(filePath: string) {
+    const dir = dirname(filePath);
+    await mkdir(dir, { recursive: true });
+}
+
 export async function buildProject(workspaceRoot: string,
     kpjPath: string, msg: (m: string)=>void): Promise<void> {
 
@@ -86,6 +94,7 @@ export async function buildProject(workspaceRoot: string,
 
         const outfile = project.resolveOutputFilePath(path, KeymanFileTypes.Source.LdmlKeyboard, KeymanFileTypes.Binary.Keyboard);
         msg(`.. outfile is ${outfile}\r\n`);
+        await mkParentDirs(outfile);
         const result = await compiler.run(filePath, outfile);
         if (!result) {
             msg(`Compiler failed to run\r\n`);
@@ -104,17 +113,15 @@ export async function buildProject(workspaceRoot: string,
         msg(`.. wrote\r\n`);
     
         msg(`\r\n\r\n`);
-        didCompileSrc = true;
+        didCompileSrc = true; // we allow more than one xmk in each package
     }
-    // paths.filter(path => extname(path) === KeymanFileTypes.Source.KeymanKeyboard)
-    //     .forEach(path => {
-    //         msg(`TODO: compile kmn: ${path}\r\n`);
-    //     });
-    // paths.filter(path => extname(path) === KeymanFileTypes.Source.Package)
-    //     .forEach(path => {
-    //         msg(`TODO: build package: ${path}\r\n`);
-    //     });
-    // // project.files.forEach(({filePath}) => msg(`File: ${filePath}\r\n`));
+
+    // now, compile any .kmn
+    for (const path of project.files.filter(({ filePath }) => extname(filePath) === KeymanFileTypes.Source.KeymanKeyboard)) {
+        msg(`TODO: Sorry, don't yet compile .kmn such as ${path.filePath} ..`);
+    }
+
+    // check errs and get out
 
     if(callbacks.hasFailureMessage(false)) {
         throw Error(`Error building ${kpjPath}`);
@@ -123,6 +130,42 @@ export async function buildProject(workspaceRoot: string,
     if (!didCompileSrc) {
         throw Error(`Error: no source files were compiled.`);
     }
+
+
+    // now, any packaging
+    for (const path of project.files.filter(({ filePath }) => extname(filePath) === KeymanFileTypes.Source.Package)) {
+        const { filePath } = path;
+        const kmpCompilerOptions: KmpCompilerOptions = {
+            ...options
+        };
+        const outfile = project.resolveOutputFilePath(path, KeymanFileTypes.Source.Package, KeymanFileTypes.Binary.Package);
+        await mkParentDirs(outfile);
+        msg(`Packaging: ${filePath} into ${outfile}\r\n`);
+
+        const compiler = new KmpCompiler();
+        if (!await compiler.init(callbacks, kmpCompilerOptions)) {
+            msg(`Compiler failed init\r\n`);
+            continue;
+        }
+
+        const result = await compiler.run(filePath, outfile);
+        if (!result) {
+            msg(`Compiler failed to run\r\n`);
+            continue;
+        }
+        msg(`.. compiled\r\n`);
+
+        if (!await compiler.write(result.artifacts)) {
+            msg(`Error writing ${outfile}\r\n`);
+            throw Error(`Error writing ${outfile}`);
+        }
+
+        msg(`.. wrote\r\n`);
+    
+        msg(`\r\n\r\n`);
+
+    }
+
     msg(`All done.\r\n`);
     return;
 }
