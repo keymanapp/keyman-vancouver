@@ -7,6 +7,10 @@
  * Code related to building KPJ projects
  */
 
+/**
+ * TODO Some of this code may  look very familiar and should be refactored from kmc !
+ */
+
 import { extname } from "node:path";
 import { KPJFileReader, CompilerCallbacks, CompilerEvent, KeymanFileTypes, CompilerCallbackOptions, CompilerOptions, LDMLKeyboardXMLSourceFileReader } from "@keymanapp/common-types";
 import { ExtensionCallbacks } from "./extensionCallbacks.mjs";
@@ -16,6 +20,7 @@ export async function buildProject(workspaceRoot: string,
     kpjPath: string, msg: (m: string)=>void): Promise<void> {
 
     const callbacks = new ExtensionCallbacks({}, msg);
+
     // const outfile = '';
     const coptions : CompilerCallbackOptions = {
     };
@@ -72,6 +77,7 @@ export async function buildProject(workspaceRoot: string,
         };
         const compiler = new kmcLdml.LdmlKeyboardCompiler();
         if (!await compiler.init(callbacks, ldmlCompilerOptions)) {
+            msg(`Compiler failed init\r\n`);
             continue;
         }
 
@@ -79,6 +85,7 @@ export async function buildProject(workspaceRoot: string,
         msg(`.. outfile is ${outfile}\r\n`);
         const result = await compiler.run(filePath, outfile);
         if (!result) {
+            msg(`Compiler failed to run\r\n`);
             continue;
         }
         msg(`.. compiled\r\n`);
@@ -86,11 +93,13 @@ export async function buildProject(workspaceRoot: string,
         //             return false;
         // }
 
-        await compiler.write(result.artifacts);
+        if (!await compiler.write(result.artifacts)) {
+            msg(`Error writing ${outfile}\r\n`);
+            throw Error(`Error writing ${outfile}`);
+        }
 
         msg(`.. wrote\r\n`);
-
-
+    
         msg(`\r\n\r\n`);
     }
     // paths.filter(path => extname(path) === KeymanFileTypes.Source.KeymanKeyboard)
@@ -103,6 +112,9 @@ export async function buildProject(workspaceRoot: string,
     //     });
     // // project.files.forEach(({filePath}) => msg(`File: ${filePath}\r\n`));
 
+    if(callbacks.hasFailureMessage(false)) {
+        throw Error(`Error building ${kpjPath}`);
+    }
     msg(`All done.\r\n`);
     return;
 }
